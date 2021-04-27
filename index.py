@@ -6,7 +6,7 @@ class Interest_Calculator():
 		self.currentAmount = currentAmount
 		
 		self.dailyCompoundedInterestRate = 0.0
-		self.annualizedInterestRate = ((1+self.dailyCompoundedInterestRate)**365)-1.0
+		self.annualizedInterestRate = (((1+self.dailyCompoundedInterestRate)**365)-1)
 
 		self.init_k = 0.0
 		self.maxIterations = 100
@@ -17,8 +17,9 @@ class Interest_Calculator():
 	def setDepositDates(self, dates, currentDate):
 		self.depositDates = dates
 		self.currentDate = currentDate
-		self.tDays = [(self.currentDate-date).days for date in self.depositDates]
-		#print(self.tDays)
+		self.Days = [(self.currentDate-date).days for date in self.depositDates]
+		
+		#print(self.Days)
 
 	def setDepositAmounts(self, amounts):
 		self.depositAmounts = amounts
@@ -64,3 +65,47 @@ class Interest_Calculator():
 
 	def getCurrentInterestRate(self):
 		return ((1+self.dailyCompoundedInterestRate)**self.tDays[0])-1.0
+
+if __name__ == '__main__':
+	input_filename = sys.argv[1]
+	f = open(input_filename, 'r')
+	# Read number of deposits
+	no_of_deposits = int(f.readline())
+	print("\nDeposit Date   Amount ")
+	
+	depositDates=[]
+	depositAmounts=[]
+	total_purchased = 0
+	total_sold = 0
+	for i in range(no_of_deposits):
+		line = f.readline()
+		line = ' '.join(line.split())
+		line = line.split(' ')[:4]
+		deposit_date = date(int(line[0]), int(line[1]), int(line[2]))
+		amount = float(line[3])
+		if amount > 0:
+			total_purchased += amount
+		else:
+			total_sold += (-amount)
+		depositDates.append(deposit_date)
+		depositAmounts.append(amount)
+		print(deposit_date, "    ", amount)
+	line = f.readline()
+	line = ' '.join(line.split())
+	line = line.split(' ')[:4]
+	currentDate = date(int(line[0]), int(line[1]), int(line[2]))
+	currentAmount = float(line[3])
+	print("\nTotal Value Purchased:", total_purchased)
+	print("Total Value Sold:", total_sold)
+	print("\nCurrent Date   Current Value ")
+	print(currentDate, "    ", currentAmount, "\n")
+	print("\nNet Gain: ", total_sold-total_purchased+currentAmount)
+
+	calc = Interest_Calculator(depositDates, depositAmounts, currentDate, currentAmount)
+	if(calc.runCalculator()):
+		print("Daily Compounded Interest = ", calc.getDailyCompoundedInterestRate()*100, "%")
+		print("Annualized Compounded Interest = ", calc.getAnnualizedInterestRate()*100, "%")
+		print("Interest Until", currentDate, "is ", calc.getCurrentInterestRate()*100, "%")
+		print("")
+	else:
+		print("Interest couldn't be calculated. Newton's method failed to converge")
