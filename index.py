@@ -36,7 +36,7 @@ class Interest_Calculator():
 			new_k = k - (y/yprime) #Do Newton's computation
 			if(abs(new_k - k) <= self.tolerance): #If the result is within the desired tolerance
 				self.solutionFound = True
-				break #Done, so leave the loop
+				break #Done, leave the loop
 
 			k = new_k #Update k to start the process again
 
